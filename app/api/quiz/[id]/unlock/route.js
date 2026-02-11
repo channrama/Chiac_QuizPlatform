@@ -1,5 +1,5 @@
-import connectDB from '../../../../lib/db';
-import Quiz from '../../../../models/Quiz';
+import connectDB from '../../../../../lib/db';
+import Quiz from '../../../../../models/Quiz';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req, { params }) {
