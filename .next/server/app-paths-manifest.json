@@ -1,1 +1,12 @@
-{}
+{
+  "/login/page": "app/login/page.js",
+  "/results/page": "app/results/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/quiz/[id]/page": "app/quiz/[id]/page.js",
+  "/page": "app/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/quiz/route": "app/api/quiz/route.js",
+  "/api/quiz/[id]/route": "app/api/quiz/[id]/route.js",
+  "/api/attempt/route": "app/api/attempt/route.js",
+  "/api/attempt/my/route": "app/api/attempt/my/route.js"
+}

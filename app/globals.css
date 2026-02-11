@@ -2,10 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html, body, #__next {
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-gray-50 text-gray-800;
+  @apply bg-dark-900 text-white;
+}
+
+/* Smooth animations */
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent;
+  }
+
+  .glow-box {
+    @apply shadow-[0_0_20px_rgba(99,102,241,0.3)];
+  }
+
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-shimmer {
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* Selection */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: white;
+}
+
+/* Placeholder */
+::placeholder {
+  @apply text-gray-500;
+}
+
+/* Focus rings */
+*:focus-visible {
+  @apply outline-none ring-2 ring-neon-blue/50 ring-offset-2 ring-offset-dark-900;
+}
+
+/* Input styling */
+input,
+textarea,
+select {
+  @apply transition-all duration-250;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  @apply ring-2 ring-neon-blue/50 ring-offset-2 ring-offset-dark-900;
+}
+
+/* Button defaults */
+button {
+  @apply transition-all duration-250;
+}
+
+/* Link styling */
+a {
+  @apply transition-colors duration-250;
 }
