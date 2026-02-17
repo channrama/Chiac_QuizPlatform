@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Online Quiz & Assessment Platform
 
-## Getting Started
+## 📌 Project Overview
 
-First, run the development server:
+This project is a backend implementation of an Online Quiz & Assessment Platform built as part of the internship program.
+
+The platform supports:
+
+- Quiz creation with multiple questions
+- Multiple-choice questions (MCQs)
+- Quiz attempt submission
+- Automatic score calculation
+- Percentage scoring
+- Attempt history tracking
+- Basic platform statistics
+
+---
+
+## 🛠 Tech Stack
+
+- Next.js (App Router API Routes)
+- MongoDB Atlas
+- Mongoose
+- Node.js
+
+---
+
+## 📂 Project Structure
+
+```
+quiz-platform/
+│
+├── app/
+│   └── api/
+│       ├── quiz/
+│       ├── attempts/
+│       └── stats/
+│
+├── models/
+│   ├── Quiz.js
+│   └── Attempt.js
+│
+├── lib/
+│   └── mongodb.js
+│
+├── BACKEND_DOCUMENTATION.md
+└── README.md
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone <repository_url>
+cd quiz-platform
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Configure Environment Variables
+
+Create a file named:
+
+```
+.env.local
+```
+
+Add your MongoDB connection string:
+
+```
+MONGODB_URI=your_mongodb_connection_string
+```
+
+---
+
+### 4️⃣ Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Server runs at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🚀 API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+### 🔹 POST `/api/quiz/create`
+Creates a new quiz.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🔹 GET `/api/quiz`
+Returns list of quizzes (ID and title).
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔹 GET `/api/quiz/[id]`
+Returns quiz details (correct answers hidden).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### 🔹 POST `/api/quiz/[id]/attempt`
+Submits quiz attempt and returns:
+
+- score
+- totalQuestions
+- percentage
+- attemptId
+
+---
+
+### 🔹 GET `/api/attempts`
+Returns attempt history (latest first).
+
+---
+
+### 🔹 GET `/api/stats`
+Returns:
+
+- totalQuizzes
+- totalAttempts
+
+---
+
+## 🔒 Validation & Security
+
+- Each question must have at least two options.
+- Each question must have exactly one correct option.
+- Attempt inputs are validated.
+- Correct answers are never exposed in quiz detail API.
+
+---
+
+## 🧪 Sample Test Flow
+
+1. Create a quiz using POST `/api/quiz/create`
+2. Fetch quizzes using GET `/api/quiz`
+3. Fetch quiz details using GET `/api/quiz/[id]`
+4. Submit attempt using POST `/api/quiz/[id]/attempt`
+5. View attempt history using GET `/api/attempts`
+
+---
+
+## ✅ Features Completed
+
+- Quiz management
+- Automatic scoring
+- Attempt storage
+- Percentage calculation
+- Attempt history
+- Statistics endpoint
+- Input validation
+- Secure API responses
+
+---
+
+## 📎 Notes
+
+This backend is designed to integrate with a frontend built using Next.js.
+
+For detailed backend explanation, refer to:
+
+```
+BACKEND_DOCUMENTATION.md
+```
