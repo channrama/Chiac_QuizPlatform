@@ -5,6 +5,7 @@ import Quiz from '../../../../models/Quiz';
 import { getUserFromRequest, requireRole } from '../../../../lib/middleware';
 import { extractTextFromPDF, validateQuizJSON } from '../../../../lib/aiQuiz';
 import { generateQuizQuestions } from '../../../../lib/openai';
+import crypto from 'crypto';
 
 export async function POST(req) {
   const user = await getUserFromRequest(req);
@@ -42,8 +43,20 @@ export async function POST(req) {
 
     // save to db
     await connectDB();
-    const quizData = { title, description, duration, questions, createdBy: user._id };
-    
+
+    // Generate unique 6-digit numeric join code and formal Quiz ID
+    let joinCode, quizId;
+    let isUnique = false;
+    while (!isUnique) {
+      joinCode = Math.floor(100000 + Math.random() * 900000).toString();
+      quizId = `QZ-${Math.floor(100000 + Math.random() * 900000)}`;
+      const existing = await Quiz.findOne({ $or: [{ joinCode }, { quizId }] });
+      if (!existing) isUnique = true;
+    }
+
+    const publicUrl = `quiz-${Math.floor(Math.random() * 10000000)}`;
+    const quizData = { title, description, duration, questions, publicUrl, joinCode, quizId, createdBy: user._id };
+
     if (accessPassword) {
       const bcrypt = await import('bcryptjs');
       const hashed = await bcrypt.default.hash(String(accessPassword), 10);

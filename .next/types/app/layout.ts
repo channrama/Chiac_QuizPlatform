@@ -1,4 +1,4 @@
-// File: D:\quiz\app\layout.jsx
+// File: D:\chaic_quiz\Chiac_QuizPlatform\app\layout.jsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

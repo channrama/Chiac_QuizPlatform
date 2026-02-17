@@ -10,9 +10,18 @@ export async function GET(req, { params }) {
     await connectDB();
     const quiz = await Quiz.findById(id).lean();
     if (!quiz) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
-    // if password protected, require unlock
-    if (quiz.accessPassword) return new Response(JSON.stringify({ error: 'locked' }), { status: 403 });
-    // hide correct answers
+    // Secure check: if student, require joinCode in query
+    const user = await getUserFromRequest(req);
+    const { searchParams } = new URL(req.url);
+    const providedKey = searchParams.get('key');
+
+    if (user?.role === 'student') {
+      if (!providedKey || providedKey !== quiz.joinCode) {
+        return new Response(JSON.stringify({ error: 'Access Denied: Valid Join Code Required' }), { status: 403 });
+      }
+    }
+
+    // hide correct answers for students
     const sanitized = { ...quiz, questions: quiz.questions.map(q => ({ question: q.question, options: q.options })) };
     return new Response(JSON.stringify(sanitized), { status: 200 });
   } catch (err) {

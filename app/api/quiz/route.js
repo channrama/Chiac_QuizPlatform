@@ -3,6 +3,7 @@ import Quiz from '../../../models/Quiz';
 import { getUserFromRequest, requireRole } from '../../../lib/middleware';
 import { validateQuizPayload } from '../../../lib/validate';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export async function GET(req) {
   // Return all quizzes (hide correct answers)
@@ -30,7 +31,19 @@ export async function POST(req) {
   if (!valid) return new Response(JSON.stringify({ error: 'Invalid input', details: errors }), { status: 400 });
   try {
     await connectDB();
-    const toSave = { title, description, duration, questions, createdBy: user._id };
+
+    // Generate unique 6-digit numeric join code and formal Quiz ID
+    let joinCode, quizId;
+    let isUnique = false;
+    while (!isUnique) {
+      joinCode = Math.floor(100000 + Math.random() * 900000).toString();
+      quizId = `QZ-${Math.floor(100000 + Math.random() * 900000)}`;
+      const existing = await Quiz.findOne({ $or: [{ joinCode }, { quizId }] });
+      if (!existing) isUnique = true;
+    }
+
+    const publicUrl = `quiz-${Math.floor(Math.random() * 10000000)}`;
+    const toSave = { title, description, duration, questions, publicUrl, joinCode, quizId, createdBy: user._id };
     if (body.accessPassword) {
       const hashed = await bcrypt.hash(String(body.accessPassword), 10);
       toSave.accessPassword = hashed;

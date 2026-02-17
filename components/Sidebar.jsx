@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
   FileText,
@@ -14,23 +15,13 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const [role, setRole] = useState(null);
-  const [mounted, setMounted] = useState(false);
+  const { user, loading } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  useEffect(() => {
-    const t = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (t) {
-      try {
-        const payload = JSON.parse(atob(t.split('.')[1]));
-        setRole(payload.role);
-      } catch (e) {}
-    }
-    setMounted(true);
-  }, []);
+  if (loading || !user) return null;
 
-  if (!mounted || !role) return null;
+  const role = user.role;
 
   const teacherMenus = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', id: 'dashboard' },
@@ -43,7 +34,6 @@ export default function Sidebar() {
 
   const studentMenus = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', id: 'dashboard' },
-    { icon: FileText, label: 'Available', href: '/dashboard', id: 'available' },
     { icon: FolderOpen, label: 'My Attempts', href: '/results', id: 'attempts' },
     { icon: Settings, label: 'Settings', href: '#', id: 'settings' },
   ];
@@ -53,7 +43,7 @@ export default function Sidebar() {
   return (
     <motion.aside
       animate={{ width: collapsed ? 80 : 280 }}
-      className="hidden md:flex flex-col bg-dark-900/50 border-r border-white/10 backdrop-blur-sm fixed left-0 top-20 bottom-0 z-40"
+      className="hidden md:flex flex-col bg-dark-900/50 border-r border-white/10 backdrop-blur-sm h-[calc(100vh-80px)] sticky top-20 z-40"
     >
       {/* Collapse Button */}
       <motion.button
@@ -77,11 +67,10 @@ export default function Sidebar() {
                 <motion.div
                   whileHover={{ x: 5 }}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-250 relative ${
-                    isActive
-                      ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white'
-                      : 'text-gray-400 hover:bg-white/5'
-                  }`}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-250 relative ${isActive
+                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white'
+                    : 'text-gray-400 hover:bg-white/5'
+                    }`}
                 >
                   <Icon size={20} />
                   {!collapsed && <span className="text-sm font-medium">{item.label}</span>}

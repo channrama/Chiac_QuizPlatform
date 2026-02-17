@@ -21,7 +21,14 @@ export async function GET(req) {
         totalQuestions: a.totalQuestions,
         attemptedAt: a.attemptedAt
       }));
-      reports.push({ quizId: q._id, title: q.title, totalQuestions: q.questions.length, students });
+      reports.push({
+        id: q._id,
+        quizId: q.quizId,
+        joinCode: q.joinCode,
+        title: q.title,
+        totalQuestions: q.questions.length,
+        students
+      });
     }
     return new Response(JSON.stringify({ reports }), { status: 200 });
   } catch (err) {

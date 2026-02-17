@@ -1,4 +1,4 @@
-// File: D:\quiz\app\api\quiz\my\route.js
+// File: D:\chaic_quiz\Chiac_QuizPlatform\app\api\quiz\my\route.js
 import * as entry from '../../../../../../app/api/quiz/my/route.js'
 import type { NextRequest } from 'next/server.js'
 

@@ -1,35 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Nav() {
-  const [role, setRole] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const { user, loading, logout } = useAuth();
 
-  useEffect(() => {
-    // Read from localStorage on mount
-    const t = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (t) {
-      try {
-        const payload = JSON.parse(atob(t.split('.')[1]));
-        setRole(payload.role);
-        setLoggedIn(true);
-      } catch (e) {
-        setLoggedIn(false);
-      }
-    }
-    setMounted(true);
-  }, []);
-
-  function logout() {
-    localStorage.removeItem('token');
-    setLoggedIn(false);
-    setRole(null);
-    if (typeof window !== 'undefined') window.location.href = '/';
-  }
-
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
+  if (loading) {
     return (
       <nav className="flex justify-between items-center mb-6">
         <div className="text-xl font-bold">Online Quiz</div>
@@ -42,6 +17,9 @@ export default function Nav() {
       </nav>
     );
   }
+
+  const role = user?.role;
+  const loggedIn = !!user;
 
   return (
     <nav className="flex justify-between items-center mb-6">
