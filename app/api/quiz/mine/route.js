@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
-import Attempt from "@/models/Attempt";
+import Quiz from "@/models/Quiz";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET(req) {
@@ -27,18 +27,18 @@ export async function GET(req) {
 
     const userId = decoded.id;
 
-    const attempts = await Attempt.find({ userId })
-      .populate("quizId", "title")
+    const quizzes = await Quiz.find({ createdBy: userId })
       .sort({ createdAt: -1 });
 
-    return new Response(JSON.stringify(attempts), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify(quizzes),
+      { status: 200 }
+    );
 
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ error: "Failed to fetch attempts" }),
+      JSON.stringify({ error: "Failed to fetch quizzes" }),
       { status: 500 }
     );
   }

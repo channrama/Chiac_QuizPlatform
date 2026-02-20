@@ -7,6 +7,11 @@ const AttemptSchema = new mongoose.Schema(
       ref: "Quiz",
       required: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     score: {
       type: Number,
       required: true,
@@ -15,6 +20,12 @@ const AttemptSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    answers: [
+      {
+        questionIndex: Number,
+        selectedOptionIndex: Number,
+      },
+    ],
   },
   { timestamps: true }
 );

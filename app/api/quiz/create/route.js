@@ -1,66 +1,57 @@
 import { connectDB } from "@/lib/mongodb";
 import Quiz from "@/models/Quiz";
+import { verifyToken } from "@/lib/auth";
 
 export async function POST(req) {
   try {
     await connectDB();
-    const body = await req.json();
 
+    const authHeader = req.headers.get("authorization");
+
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = verifyToken(token);
+
+    if (!decoded) {
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401 }
+      );
+    }
+
+    const userId = decoded.id;
+
+    const body = await req.json();
     const { title, questions } = body;
 
-  // Basic validation
-  if (!title || typeof title !== "string") {
-    return new Response(
-      JSON.stringify({ error: "Valid title is required" }),
-      { status: 400 }
-    );
-  }
-
-  if (!Array.isArray(questions) || questions.length === 0) {
-    return new Response(
-      JSON.stringify({ error: "At least one question is required" }),
-      { status: 400 }
-    );
-  }
-
-  for (const question of questions) {
-    if (!question.questionText || !Array.isArray(question.options)) {
+    if (!title || !questions?.length) {
       return new Response(
-        JSON.stringify({ error: "Invalid question format" }),
+        JSON.stringify({ error: "Invalid quiz data" }),
         { status: 400 }
       );
     }
 
-    if (question.options.length < 2) {
-      return new Response(
-        JSON.stringify({ error: "Each question must have at least 2 options" }),
-        { status: 400 }
-      );
-    }
-
-    const correctOptions = question.options.filter(opt => opt.isCorrect);
-
-    if (correctOptions.length !== 1) {
-      return new Response(
-        JSON.stringify({ error: "Each question must have exactly one correct option" }),
-        { status: 400 }
-      );
-    }
-  }
-
-    const quiz = await Quiz.create({ title, questions });
+    const quiz = await Quiz.create({
+      title,
+      questions,
+      createdBy: userId,
+    });
 
     return new Response(
-      JSON.stringify({
-        message: "Quiz created successfully",
-        quizId: quiz._id,
-      }),
+      JSON.stringify(quiz),
       { status: 201 }
     );
+
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: "Failed to create quiz" }),
       { status: 500 }
     );
   }

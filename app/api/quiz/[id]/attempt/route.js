@@ -1,16 +1,38 @@
 import { connectDB } from "@/lib/mongodb";
 import Quiz from "@/models/Quiz";
 import Attempt from "@/models/Attempt";
+import { verifyToken } from "@/lib/auth";
 
 export async function POST(req, context) {
   try {
     await connectDB();
 
     const { id } = await context.params;
+
+    const authHeader = req.headers.get("authorization");
+
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = verifyToken(token);
+
+    if (!decoded) {
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401 }
+      );
+    }
+
+    const userId = decoded.id;
+
     const body = await req.json();
     const { answers } = body;
 
-    // Validate answers
     if (!Array.isArray(answers)) {
       return new Response(
         JSON.stringify({ error: "Answers must be an array" }),
@@ -18,7 +40,6 @@ export async function POST(req, context) {
       );
     }
 
-    // Fetch quiz
     const quiz = await Quiz.findById(id);
 
     if (!quiz) {
@@ -28,24 +49,6 @@ export async function POST(req, context) {
       );
     }
 
-    if (answers.some(a =>
-      typeof a.questionIndex !== "number" ||
-      typeof a.selectedOptionIndex !== "number"
-    )) {
-      return new Response(
-        JSON.stringify({ error: "Invalid answer format" }),
-        { status: 400 }
-      );
-    }
-
-    if (answers.length > quiz.questions.length) {
-      return new Response(
-        JSON.stringify({ error: "Too many answers submitted" }),
-        { status: 400 }
-      );
-    }
-
-    // Calculate score
     let score = 0;
 
     quiz.questions.forEach((question, qIndex) => {
@@ -66,14 +69,14 @@ export async function POST(req, context) {
     const totalQuestions = quiz.questions.length;
     const percentage = Math.round((score / totalQuestions) * 100);
 
-    // Store attempt in database
     const attempt = await Attempt.create({
       quizId: id,
+      userId,
       score,
       totalQuestions,
+      answers,
     });
 
-    // Return response
     return new Response(
       JSON.stringify({
         message: "Attempt recorded successfully",
@@ -86,6 +89,7 @@ export async function POST(req, context) {
     );
 
   } catch (error) {
+    console.error(error);
     return new Response(
       JSON.stringify({ error: "Failed to evaluate quiz" }),
       { status: 500 }
