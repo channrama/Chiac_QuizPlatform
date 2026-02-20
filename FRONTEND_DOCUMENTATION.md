@@ -1,5 +1,5 @@
-```md
-# 🎨 Frontend Documentation  
+# 🎨 Frontend Documentation
+
 ## Quiz Platform — v2.0 (Full Stack SaaS UI)
 
 ---
@@ -38,17 +38,13 @@ The frontend follows:
 Authentication token is stored in:
 
 ```
-
 localStorage
-
 ```
 
 And sent via header:
 
 ```
-
-Authorization: Bearer <token>
-
+Authorization: Bearer
 ```
 
 ---
@@ -56,10 +52,9 @@ Authorization: Bearer <token>
 # 📂 Page Structure
 
 ```
-
 app/
 │
-├── page.tsx                → Dashboard
+├── page.tsx → Dashboard
 ├── login/
 ├── register/
 ├── create-quiz/
@@ -72,8 +67,7 @@ app/
 │   └── [id]/page.tsx
 │
 └── stats/
-└── page.tsx
-
+    └── page.tsx
 ```
 
 ---
@@ -209,6 +203,7 @@ Includes:
 Displays:
 
 ### Personal Stats:
+
 - Total quizzes created
 - Total attempts
 - Highest score
@@ -218,16 +213,15 @@ Displays:
 Data fetched from:
 
 ```
-
 /api/stats
-
-````
+```
 
 ---
 
 # 🎨 UI Design System
 
 ### Theme:
+
 - Dark theme
 - Soft borders
 - Rounded cards
@@ -235,6 +229,7 @@ Data fetched from:
 - Gradient buttons
 
 ### Layout Principles:
+
 - Clean spacing
 - Responsive grid
 - Mobile-friendly design
@@ -267,7 +262,7 @@ fetch("/api/endpoint", {
     Authorization: `Bearer ${token}`
   }
 })
-````
+```
 
 Protected routes redirect to `/login` if token missing.
 

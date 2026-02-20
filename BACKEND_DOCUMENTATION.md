@@ -1,4 +1,3 @@
-````md
 # 🔧 Backend Documentation  
 ## Quiz Platform — v2.0 (Full Stack SaaS Backend)
 

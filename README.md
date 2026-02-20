@@ -1,4 +1,3 @@
-```markdown
 # 🧠 Quiz Platform — Full Stack SaaS Application (v2.0)
 
 ## 📌 Overview
@@ -6,7 +5,6 @@
 Quiz Platform is a full-stack Online Quiz & Assessment System built using **Next.js (App Router)** and **MongoDB**.
 
 It allows users to:
-
 - ✅ Register & Login
 - ✅ Create quizzes
 - ✅ Edit & delete quizzes (owner only)
@@ -105,7 +103,6 @@ quiz-platform/
 ├── README.md
 ├── BACKEND_DOCUMENTATION.md
 └── FRONTEND_DOCUMENTATION.md
-
 ```
 
 ---
@@ -113,39 +110,28 @@ quiz-platform/
 ## ⚙️ Setup Instructions
 
 ### 1️⃣ Clone Repository
-
 ```bash
 git clone <repository_url>
 cd quiz-platform
-
 ```
 
 ### 2️⃣ Install Dependencies
-
 ```bash
 npm install
-
 ```
 
 ### 3️⃣ Configure Environment Variables
-
 Create a file named `.env.local` and add the following:
-
 ```env
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
-
 ```
 
 ### 4️⃣ Run Development Server
-
 ```bash
 npm run dev
-
 ```
-
-Application runs at: `http://localhost:3000`
-
+Application runs at: `http://localhost:3000` 
 ---
 
 ## 🌍 Deployment
@@ -155,15 +141,15 @@ Application runs at: `http://localhost:3000`
 1. Push project to GitHub.
 2. Import project into Vercel.
 3. Set environment variables (`MONGODB_URI`, `JWT_SECRET`).
-4. Deploy.
+4. Deploy. 
 
-*Use separate branches for preview deployments before moving to production.*
+*Use separate branches for preview deployments before moving to production.* 
 
 ---
 
 ## 🧪 Sample Flow
 
-1. **Register** a new user.
+1. **Register** a new user .
 2. **Login** and receive JWT token.
 3. **Create** a quiz.
 4. **Attempt** the quiz.
