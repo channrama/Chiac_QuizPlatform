@@ -1,204 +1,389 @@
-# Online Quiz & Assessment Platform — Backend Documentation
+````md
+# 🔧 Backend Documentation  
+## Quiz Platform — v2.0 (Full Stack SaaS Backend)
+
+---
 
 ## 📌 Overview
 
-This backend supports:
+This backend powers a full-stack Online Quiz & Assessment Platform built using:
 
-- Quiz creation
-- Quiz listing and viewing
-- Quiz attempt submission
-- Automatic score calculation
-- Attempt history tracking
-- Basic statistics endpoint
+- **Next.js (App Router API Routes)**
+- **MongoDB Atlas**
+- **Mongoose ODM**
+- **JWT Authentication**
+- **bcryptjs**
 
-The backend is built using:
-
-- Next.js (App Router API routes)
-- MongoDB Atlas
-- Mongoose ODM
+The system supports authentication, quiz management, attempt evaluation, leaderboards, and analytics.
 
 ---
 
-## 📂 Project Structure
+# 🧠 Architecture Design
 
-```
-quiz-platform/
-│
-├── app/
-│   └── api/
-│       ├── quiz/
-│       ├── attempts/
-│       └── stats/
-│
-├── models/
-│   ├── Quiz.js
-│   └── Attempt.js
-│
-├── lib/
-│   └── mongodb.js
-│
-└── BACKEND_DOCUMENTATION.md
-```
+The backend follows a modular REST-style architecture:
+
+- Authentication APIs
+- Quiz APIs
+- Attempt APIs
+- Leaderboard APIs
+- Statistics APIs
+
+Key Design Principle:
+
+> Attempt API and Stats API are separated (Scalable Architecture)
 
 ---
 
-## 🗄 Data Models
-
-### 1️⃣ Quiz Model
-
-Each quiz contains:
-
-- `title` (String)
-- `questions` (Array)
-
-Each question contains:
-
-- `questionText`
-- `options`
-
-Each option contains:
-
-- `text`
-- `isCorrect` (stored internally only)
+# 🗄 Database Models
 
 ---
 
-### 2️⃣ Attempt Model
+## 1️⃣ User Model
 
-Each attempt contains:
-
-- `quizId` (Reference to Quiz)
-- `score`
-- `totalQuestions`
-- `createdAt`
-- `updatedAt`
-
----
-
-## 🚀 API Endpoints
-
----
-
-### 🔹 POST `/api/quiz/create`
-
-Creates a new quiz.
-
-#### Request Body:
-```json
+```js
 {
-  "title": "Sample Quiz",
-  "questions": [
+  name: String,
+  email: String,
+  password: String (hashed),
+  createdAt: Date,
+  updatedAt: Date
+}
+````
+
+### Notes:
+
+* Password is hashed using bcrypt
+* Email must be unique
+
+---
+
+## 2️⃣ Quiz Model
+
+```js
+{
+  title: String,
+  questions: [
     {
-      "questionText": "2 + 2 = ?",
-      "options": [
-        { "text": "3", "isCorrect": false },
-        { "text": "4", "isCorrect": true }
+      questionText: String,
+      options: [
+        {
+          text: String,
+          isCorrect: Boolean
+        }
       ]
     }
-  ]
+  ],
+  createdBy: ObjectId (ref: User),
+  isPublic: Boolean,
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
-#### Response:
+### Features:
+
+* Owner-based authorization
+* Public / Private toggle
+* Correct answers hidden from quiz fetch API
+
+---
+
+## 3️⃣ Attempt Model
+
+```js
+{
+  quizId: ObjectId (ref: Quiz),
+  userId: ObjectId (ref: User),
+  score: Number,
+  totalQuestions: Number,
+  answers: [
+    {
+      questionIndex: Number,
+      selectedOptionIndex: Number
+    }
+  ],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Notes:
+
+* Score auto-calculated
+* Percentage computed dynamically
+* Used for leaderboard and stats
+
+---
+
+# 🔐 Authentication System
+
+Authentication uses JWT tokens.
+
+### Login Flow:
+
+1. User submits email + password
+2. Password validated via bcrypt
+3. JWT token generated:
+
 ```json
 {
-  "message": "Quiz created successfully",
-  "quizId": "..."
+  "id": "userId"
+}
+```
+
+4. Token returned to frontend
+5. Token required for protected endpoints
+
+### Protected Header Format:
+
+```
+Authorization: Bearer <token>
+```
+
+---
+
+# 🚀 API Endpoints
+
+---
+
+# 🔑 Authentication APIs
+
+---
+
+### POST `/api/auth/register`
+
+Registers a new user.
+
+#### Request Body:
+
+```json
+{
+  "name": "John",
+  "email": "john@test.com",
+  "password": "password123"
 }
 ```
 
 ---
 
-### 🔹 GET `/api/quiz`
+### POST `/api/auth/login`
 
-Returns list of quizzes (ID and title only).
+Returns:
+
+```json
+{
+  "message": "Login successful",
+  "token": "...",
+  "user": {
+    "name": "...",
+    "email": "..."
+  }
+}
+```
 
 ---
 
-### 🔹 GET `/api/quiz/[id]`
-
-Returns quiz details.
-
-⚠️ Correct answers (`isCorrect`) are removed from response for security.
+# 📘 Quiz APIs
 
 ---
 
-### 🔹 POST `/api/quiz/[id]/attempt`
+### POST `/api/quiz/create`
 
-Submits quiz attempt.
+Create quiz (Authenticated)
+
+---
+
+### GET `/api/quiz`
+
+List public quizzes
+
+---
+
+### GET `/api/quiz/mine`
+
+List quizzes created by logged-in user
+
+---
+
+### GET `/api/quiz/[id]`
+
+Fetch quiz details
+
+* Private quiz protection enforced
+* Correct answers not exposed
+
+---
+
+### PATCH `/api/quiz/[id]`
+
+Edit quiz (Owner only)
+
+Allowed updates:
+
+* title
+* questions
+* isPublic
+
+---
+
+### DELETE `/api/quiz/[id]`
+
+Delete quiz (Owner only)
+
+---
+
+# 📝 Attempt APIs
+
+---
+
+### POST `/api/quiz/[id]/attempt`
+
+Evaluates and stores attempt.
 
 #### Request Body:
+
 ```json
 {
   "answers": [
-    { "questionIndex": 0, "selectedOptionIndex": 1 }
+    { "questionIndex": 0, "selectedOptionIndex": 2 }
   ]
 }
 ```
 
 #### Response:
+
 ```json
 {
   "message": "Attempt recorded successfully",
-  "score": 1,
-  "totalQuestions": 1,
-  "percentage": 100,
+  "score": 3,
+  "totalQuestions": 5,
+  "percentage": 60,
   "attemptId": "..."
 }
 ```
 
 ---
 
-### 🔹 GET `/api/attempts`
+### GET `/api/attempts`
 
-Returns list of past attempts.
-
-- Sorted by latest first
-- Includes quiz title via population
+Returns logged-in user's attempts (latest first)
 
 ---
 
-### 🔹 GET `/api/stats`
+### GET `/api/attempts/[id]`
 
-Returns basic platform statistics.
+Returns full attempt details including quiz data
 
-#### Response:
+---
+
+# 🏆 Leaderboard API
+
+---
+
+### GET `/api/quiz/[id]/leaderboard`
+
+Returns top 10 attempts sorted by:
+
+1. Score (Descending)
+2. CreatedAt (Ascending)
+
+Response includes populated user name.
+
+---
+
+# 📊 Statistics APIs
+
+---
+
+## Platform + Personal Stats
+
+### GET `/api/stats`
+
+Returns:
+
 ```json
 {
-  "totalQuizzes": 3,
-  "totalAttempts": 10
+  "myStats": {
+    "totalQuizzes": 2,
+    "totalAttempts": 5,
+    "highestScore": 4,
+    "averagePercentage": 72
+  },
+  "platformStats": {
+    "totalQuizzes": 10,
+    "totalAttempts": 120,
+    "highestScore": 5,
+    "averagePercentage": 68
+  }
 }
 ```
 
 ---
 
-## ✅ Backend Features Implemented
+## Per-Quiz Stats
 
-- Input validation for quiz creation
-- Validation for attempt submission
-- Automatic score calculation
-- Percentage calculation
-- Attempt storage in database
-- Secure API (correct answers hidden)
-- Sorted attempt history
-- Statistics endpoint
+### GET `/api/quiz/[id]/stats`
 
----
+Returns:
 
-## 🔒 Security & Validation
+```json
+{
+  "averagePercentage": 75,
+  "highestScore": 5
+}
+```
 
-- Each question must have exactly one correct option.
-- Each question must have at least two options.
-- Attempt input is validated.
-- Extra answers are rejected.
-- Correct answers are never exposed in quiz detail API.
+Used in attempt result page.
 
 ---
 
-## 📎 Notes for Frontend Team
+# 🔒 Security & Validation
 
-- Use `/api/quiz` to list quizzes.
-- Use `/api/quiz/[id]` to fetch quiz questions.
-- Use `/api/quiz/[id]/attempt` to submit answers.
-- Use `/api/attempts` for attempt history.
-- Use `/api/stats` for dashboard metrics.
+* JWT validation for protected routes
+* Owner-only edit/delete enforcement
+* Private quiz protection
+* Correct answers hidden in quiz fetch
+* Attempt input validation
+* Score computed server-side only
+* No trust on frontend data
+
+---
+
+# 🏗 Scalability Considerations
+
+* Separate stats endpoint
+* Separate leaderboard endpoint
+* Attempt evaluation independent of analytics
+* Population only when required
+* MongoDB indexing possible for scaling
+
+---
+
+# ⚡ Error Handling
+
+Standard HTTP status codes:
+
+* 200 → Success
+* 201 → Created
+* 400 → Bad Request
+* 401 → Unauthorized
+* 403 → Forbidden
+* 404 → Not Found
+* 500 → Internal Server Error
+
+---
+
+# 🧩 Future Improvements
+
+* Rate limiting
+* Admin dashboard
+* Quiz categories
+* Pagination
+* Redis caching for leaderboard
+* Analytics aggregation pipeline
+
+---
+
+# 📌 Backend Version
+
+**v2.0 — Production Ready Full Stack Backend**

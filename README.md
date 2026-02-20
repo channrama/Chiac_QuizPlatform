@@ -1,50 +1,111 @@
-# Online Quiz & Assessment Platform
+```markdown
+# 🧠 Quiz Platform — Full Stack SaaS Application (v2.0)
 
-## 📌 Project Overview
+## 📌 Overview
 
-This project is a backend implementation of an Online Quiz & Assessment Platform built as part of the internship program.
+Quiz Platform is a full-stack Online Quiz & Assessment System built using **Next.js (App Router)** and **MongoDB**.
 
-The platform supports:
+It allows users to:
 
-- Quiz creation with multiple questions
-- Multiple-choice questions (MCQs)
-- Quiz attempt submission
-- Automatic score calculation
-- Percentage scoring
-- Attempt history tracking
-- Basic platform statistics
+- ✅ Register & Login
+- ✅ Create quizzes
+- ✅ Edit & delete quizzes (owner only)
+- ✅ Toggle public/private visibility
+- ✅ Attempt quizzes
+- ✅ View leaderboard per quiz
+- ✅ Track personal analytics
+- ✅ View platform-level statistics
+
+This project evolved from a backend-only system into a complete SaaS-style quiz platform.
 
 ---
 
 ## 🛠 Tech Stack
 
-- Next.js (App Router API Routes)
-- MongoDB Atlas
-- Mongoose
-- Node.js
+### 🎨 Frontend
+- **Next.js 15+** (App Router)
+- **React**
+- **Tailwind CSS**
+- **Framer Motion**
+
+### 🔧 Backend
+- **Next.js API Routes**
+- **MongoDB Atlas**
+- **Mongoose ODM**
+- **JWT Authentication**
+- **bcryptjs**
+
+---
+
+## 🔐 Authentication
+
+- User Registration
+- User Login
+- JWT-based authentication
+- Protected routes
+- Owner-based quiz authorization
+
+> **Note:** All protected endpoints require an `Authorization: Bearer <token>` header.
+
+---
+
+## 🚀 Features
+
+### 👤 User Features
+- Register / Login
+- Create quizzes
+- Attempt public quizzes
+- View attempt history
+- View personal analytics
+
+### 🧑‍💻 Creator Features
+- Edit quiz
+- Delete quiz
+- Toggle public/private
+- Share quiz link
+- View quiz leaderboard
+
+### 📊 Analytics
+- My quizzes
+- My attempts
+- Average percentage
+- Highest score
+- Per-quiz statistics
+- Platform-wide statistics
 
 ---
 
 ## 📂 Project Structure
 
-```
+```text
 quiz-platform/
 │
 ├── app/
-│   └── api/
-│       ├── quiz/
-│       ├── attempts/
-│       └── stats/
+│   ├── api/
+│   │   ├── auth/
+│   │   ├── quiz/
+│   │   ├── attempts/
+│   │   └── stats/
+│   │
+│   ├── quiz/
+│   ├── attempts/
+│   ├── login/
+│   ├── register/
+│   └── page.tsx (Dashboard)
 │
 ├── models/
+│   ├── User.js
 │   ├── Quiz.js
 │   └── Attempt.js
 │
 ├── lib/
-│   └── mongodb.js
+│   ├── mongodb.js
+│   └── auth.js
 │
+├── README.md
 ├── BACKEND_DOCUMENTATION.md
-└── README.md
+└── FRONTEND_DOCUMENTATION.md
+
 ```
 
 ---
@@ -56,122 +117,88 @@ quiz-platform/
 ```bash
 git clone <repository_url>
 cd quiz-platform
+
 ```
 
 ### 2️⃣ Install Dependencies
 
 ```bash
 npm install
+
 ```
 
 ### 3️⃣ Configure Environment Variables
 
-Create a file named:
+Create a file named `.env.local` and add the following:
 
-```
-.env.local
-```
-
-Add your MongoDB connection string:
-
-```
+```env
 MONGODB_URI=your_mongodb_connection_string
-```
+JWT_SECRET=your_secret_key
 
----
+```
 
 ### 4️⃣ Run Development Server
 
 ```bash
 npm run dev
-```
-
-Server runs at:
 
 ```
-http://localhost:3000
-```
+
+Application runs at: `http://localhost:3000`
 
 ---
 
-## 🚀 API Endpoints
+## 🌍 Deployment
 
-### 🔹 POST `/api/quiz/create`
-Creates a new quiz.
+**Recommended platform:** [Vercel](https://vercel.com)
 
----
+1. Push project to GitHub.
+2. Import project into Vercel.
+3. Set environment variables (`MONGODB_URI`, `JWT_SECRET`).
+4. Deploy.
 
-### 🔹 GET `/api/quiz`
-Returns list of quizzes (ID and title).
-
----
-
-### 🔹 GET `/api/quiz/[id]`
-Returns quiz details (correct answers hidden).
+*Use separate branches for preview deployments before moving to production.*
 
 ---
 
-### 🔹 POST `/api/quiz/[id]/attempt`
-Submits quiz attempt and returns:
+## 🧪 Sample Flow
 
-- score
-- totalQuestions
-- percentage
-- attemptId
-
----
-
-### 🔹 GET `/api/attempts`
-Returns attempt history (latest first).
+1. **Register** a new user.
+2. **Login** and receive JWT token.
+3. **Create** a quiz.
+4. **Attempt** the quiz.
+5. **View leaderboard** for that quiz.
+6. **Check analytics** in the dashboard to review the attempt breakdown.
 
 ---
 
-### 🔹 GET `/api/stats`
-Returns:
+## 🏗 Architecture Highlights
 
-- totalQuizzes
-- totalAttempts
-
----
-
-## 🔒 Validation & Security
-
-- Each question must have at least two options.
-- Each question must have exactly one correct option.
-- Attempt inputs are validated.
-- Correct answers are never exposed in quiz detail API.
+* Hybrid SaaS quiz platform.
+* Owner-based access control.
+* Private quiz protection.
+* Separate stats endpoints.
+* Per-quiz leaderboard.
+* Platform-wide analytics.
+* Clean API separation (Attempt API ≠ Stats API).
 
 ---
 
-## 🧪 Sample Test Flow
+## 🔒 Security & Validation
 
-1. Create a quiz using POST `/api/quiz/create`
-2. Fetch quizzes using GET `/api/quiz`
-3. Fetch quiz details using GET `/api/quiz/[id]`
-4. Submit attempt using POST `/api/quiz/[id]/attempt`
-5. View attempt history using GET `/api/attempts`
-
----
-
-## ✅ Features Completed
-
-- Quiz management
-- Automatic scoring
-- Attempt storage
-- Percentage calculation
-- Attempt history
-- Statistics endpoint
-- Input validation
-- Secure API responses
+* Password hashing using **bcrypt**.
+* **JWT** authentication for session management.
+* Private quiz protection via middleware/API checks.
+* Owner-only edit/delete permissions.
+* Attempt input validation.
+* **Security:** Correct answers are never exposed in the quiz detail API.
 
 ---
 
-## 📎 Notes
+## 📌 Version
 
-This backend is designed to integrate with a frontend built using Next.js.
+**v2.0** — Full Stack SaaS Edition
 
-For detailed backend explanation, refer to:
+## 👨‍💻 Author
 
-```
-BACKEND_DOCUMENTATION.md
-```
+Developed as part of internship full-stack project implementation.
