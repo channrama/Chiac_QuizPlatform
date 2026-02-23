@@ -1,5 +1,14 @@
 # 🧠 Quiz Platform — Full Stack SaaS Application (v2.0)
 
+## 🌍 Live Demo
+
+🔗 **Access the platform here:**   
+[quiz-platform-red-omega.vercel.app](https://quiz-platform-red-omega.vercel.app/)
+
+> You can register a new account and test full quiz creation, attempts, leaderboard, and analytics.
+
+---
+
 ## 📌 Overview
 
 Quiz Platform is a full-stack Online Quiz & Assessment System built using **Next.js (App Router)** and **MongoDB**.
