@@ -10,7 +10,7 @@ export async function GET(req) {
     try {
         await connectDB();
 
-        // Aggregate stats for all students to determine rank
+        // 1. Get all stats and join with User model for names
         const allStats = await Attempt.aggregate([
             {
                 $group: {
@@ -19,18 +19,45 @@ export async function GET(req) {
                     totalAttempts: { $count: {} }
                 }
             },
-            { $sort: { totalScore: -1, totalAttempts: 1 } }
+            { $sort: { totalScore: -1, totalAttempts: 1 } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "studentInfo"
+                }
+            },
+            { $unwind: "$studentInfo" },
+            {
+                $project: {
+                    _id: 1,
+                    totalScore: 1,
+                    totalAttempts: 1,
+                    name: "$studentInfo.name",
+                    email: "$studentInfo.email"
+                }
+            }
         ]);
 
         const myIndex = allStats.findIndex(s => s._id.toString() === user._id.toString());
         const myStats = myIndex !== -1 ? allStats[myIndex] : { totalScore: 0, totalAttempts: 0 };
         const rank = myIndex !== -1 ? myIndex + 1 : allStats.length + 1;
 
+        // 2. Get Top 5 for Leaderboard
+        const leaderboard = allStats.slice(0, 5).map((s, idx) => ({
+            rank: idx + 1,
+            name: s.name,
+            totalScore: s.totalScore,
+            isMe: s._id.toString() === user._id.toString()
+        }));
+
         return new Response(JSON.stringify({
             totalScore: myStats.totalScore,
             totalAttempts: myStats.totalAttempts,
             rank,
-            totalStudents: allStats.length
+            totalStudents: allStats.length,
+            leaderboard
         }), { status: 200 });
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500 });

@@ -360,20 +360,25 @@ export default function Dashboard() {
 
         {/* Aside Stats/Activity Area */}
         <div className="space-y-8">
-          <h2 className="text-2xl font-bold text-white flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              {isTeacher ? <><History className="text-neon-purple" /><span>Recent Events</span></> : <><Trophy className="text-neon-purple" /><span>My Rank</span></>}
-            </div>
-            {!isTeacher && studentStats.rank !== 'N/A' && (
-              <span className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 rounded-lg text-neon-blue text-xs font-black">
-                RANK #{studentStats.rank}
-              </span>
+          <div className="flex flex-col mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
+              {isTeacher ? (
+                <><History className="text-neon-purple" /><span>Recent Events</span></>
+              ) : (
+                <><Trophy className="text-neon-blue" /><span>Global Leaderboard</span></>
+              )}
+            </h2>
+            {!isTeacher && (
+              <div className="mt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                Top Performers & Your Position
+              </div>
             )}
-          </h2>
+          </div>
 
           <div className="space-y-4">
             {isTeacher ? (
               <GlassCard className="p-6 space-y-6">
+                {/* ... teacher recent events ... */}
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple">
                     <Users size={20} />
@@ -393,38 +398,93 @@ export default function Dashboard() {
               </GlassCard>
             ) : (
               <div className="space-y-4">
-                {attempts.length === 0 ? (
-                  <GlassCard className="text-center py-12">
-                    <p className="text-gray-500 italic">No achievements recorded yet.</p>
-                  </GlassCard>
-                ) : (
-                  attempts.slice(0, 4).map((attempt, i) => (
-                    <motion.div
-                      key={attempt._id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + i * 0.1 }}
-                    >
-                      <GlassCard className="p-5 flex justify-between items-center group cursor-pointer hover:border-white/20 transition-all">
-                        <div className="space-y-1 overflow-hidden pr-4">
-                          <p className="text-white font-bold text-sm truncate">{attempt.quizId?.title}</p>
-                          <p className="text-gray-500 text-[10px] uppercase font-bold">{new Date(attempt.createdAt).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-right flex flex-col items-end">
-                          <span className={`text-lg font-black ${attempt.score >= 80 ? 'text-green-400 shadow-glow-sm' : attempt.score >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {attempt.score}%
-                          </span>
-                          <div className="w-8 h-1 bg-white/10 rounded-full mt-1 overflow-hidden">
-                            <div className={`h-full ${attempt.score >= 80 ? 'bg-green-400' : 'bg-yellow-400'}`} style={{ width: `${attempt.score}%` }} />
+                {/* Leaderboard Section */}
+                {studentStats.leaderboard && studentStats.leaderboard.length > 0 ? (
+                  <div className="space-y-3">
+                    {studentStats.leaderboard.map((student, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                      >
+                        <div className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${student.isMe ? 'bg-neon-blue/10 border-neon-blue/50 ring-1 ring-neon-blue/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${student.rank === 1 ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(234,179,8,0.5)]' :
+                                student.rank === 2 ? 'bg-gray-300 text-black' :
+                                  student.rank === 3 ? 'bg-amber-600 text-black' :
+                                    'bg-white/10 text-white'
+                              }`}>
+                              {student.rank}
+                            </div>
+                            <div>
+                              <p className={`text-sm font-bold ${student.isMe ? 'text-neon-blue' : 'text-white'}`}>
+                                {student.name} {student.isMe && '(You)'}
+                              </p>
+                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{student.totalScore} Total Pts</p>
+                            </div>
                           </div>
+                          {student.rank === 1 && <Trophy size={16} className="text-yellow-500 animate-pulse" />}
                         </div>
-                      </GlassCard>
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    ))}
+
+                    {/* Your Current Rank Marker if not in Top 5 */}
+                    {studentStats.rank > 5 && (
+                      <div className="pt-4 mt-4 border-t border-white/5">
+                        <div className="p-4 rounded-2xl bg-neon-purple/10 border border-neon-purple/50 flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-neon-purple text-white flex items-center justify-center font-black text-sm shadow-glow-sm">
+                              {studentStats.rank}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-white">Your Position</p>
+                              <p className="text-[10px] text-neon-purple font-bold uppercase tracking-widest">{studentStats.totalScore} Total Pts</p>
+                            </div>
+                          </div>
+                          <Activity size={16} className="text-neon-purple" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <GlassCard className="text-center py-12">
+                    <p className="text-gray-500 italic">Leaderboard is gathering data...</p>
+                  </GlassCard>
                 )}
-                {attempts.length > 4 && (
-                  <button onClick={() => router.push('/results')} className="w-full text-center text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-[0.2em] py-4">
-                    Expand Full History
+
+                {/* Recent Activity Mini-Section */}
+                <div className="pt-6 pb-2">
+                  <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] flex items-center space-x-2">
+                    <History size={12} className="text-neon-blue" />
+                    <span>Recent Achievements</span>
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {attempts.length === 0 ? (
+                    <p className="text-[10px] text-gray-600 italic pl-1">No recent activity found.</p>
+                  ) : (
+                    attempts.slice(0, 3).map((attempt, i) => {
+                      const percentage = Math.round((attempt.score / (attempt.totalQuestions || 1)) * 100);
+                      return (
+                        <div key={attempt._id} className="p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center group hover:border-white/20 transition-all">
+                          <div className="space-y-1 overflow-hidden pr-4">
+                            <p className="text-white font-bold text-xs truncate">{attempt.quizId?.title}</p>
+                            <p className="text-[10px] text-gray-500 font-bold">{new Date(attempt.attemptedAt || attempt.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`text-sm font-black ${percentage >= 80 ? 'text-green-400' : 'text-yellow-400'}`}>
+                            {percentage}%
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {attempts.length > 3 && (
+                  <button onClick={() => router.push('/results')} className="w-full text-center text-[10px] font-black text-gray-500 hover:text-white transition-colors uppercase tracking-[0.2em] py-2">
+                    View All History
                   </button>
                 )}
               </div>
