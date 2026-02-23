@@ -121,12 +121,34 @@ export default function Reports() {
                     </span>
                     <span className="flex items-center space-x-1 text-xs text-gray-500 font-bold uppercase tracking-wider">
                       <Award size={12} className="text-neon-purple" />
-                      <span>Avg {Math.round(r.students.reduce((acc, s) => acc + s.score, 0) / (r.students.length || 1))} / {r.totalQuestions} Hits</span>
+                      <span>Avg {r.avgScore || 0} / {r.totalQuestions} Hits</span>
                     </span>
                   </div>
                 </div>
               </div>
-              <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  const headers = ['Student Name', 'Email', 'Score', 'Total Questions', 'Attempted At'];
+                  const rows = r.students.map(s => [
+                    `"${s.name}"`,
+                    s.email,
+                    s.score,
+                    r.totalQuestions,
+                    new Date(s.attemptedAt).toLocaleString()
+                  ]);
+                  const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const link = document.createElement('a');
+                  const url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', `${r.title.replace(/\s+/g, '_')}_Report.csv`);
+                  link.style.visibility = 'hidden';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-2"
+              >
                 <span>Export CSV</span>
                 <ArrowUpRight size={14} />
               </button>

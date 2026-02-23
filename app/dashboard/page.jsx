@@ -18,7 +18,10 @@ import {
   AlertCircle,
   Copy,
   Hash,
-  CheckCircle2
+  CheckCircle2,
+  FileText,
+  Sparkles,
+  FolderOpen
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -250,101 +253,61 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-bold text-white flex items-center space-x-3">
                   <div className="w-2 h-8 bg-neon-blue rounded-full mr-1" />
-                  <span>My Assessment Studio</span>
+                  <span>Command Center</span>
                 </h2>
-                <div className="text-xs text-gray-500 font-mono tracking-tighter">
-                  Total of {quizzes.length} live units
-                </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
-                {quizzes.length === 0 ? (
-                  <GlassCard className="text-center py-20 border-dashed">
-                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <BookOpen size={40} className="text-gray-600" />
-                    </div>
-                    <p className="text-xl font-bold text-white mb-2">No Quizzes Found</p>
-                    <p className="text-gray-500 max-w-xs mx-auto mb-8">Ready to start? Design your first assessment or generate one with AI.</p>
-                    <button onClick={() => router.push('/create-quiz')} className="px-8 py-3 bg-neon-blue text-white rounded-xl font-bold hover:shadow-glow transition-all">
-                      Begin Creation
-                    </button>
-                  </GlassCard>
-                ) : (
-                  quizzes.map((quiz, i) => (
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      key={quiz._id}
-                    >
-                      <GlassCard className="group hover:bg-white/10 transition-all border-l-4 border-l-transparent hover:border-l-neon-blue p-6 md:p-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                          <div className="flex-1 space-y-3">
-                            <div className="flex flex-wrap items-center gap-4">
-                              <h3 className="text-2xl font-black text-white group-hover:text-neon-blue transition-colors">{quiz.title}</h3>
-                              <div className="flex items-center space-x-3">
-                                <div
-                                  onClick={() => copyToClipboard(quiz.joinCode, quiz._id)}
-                                  className={`px-5 py-3 border-2 rounded-2xl flex items-center space-x-4 shadow-glow-sm group/key cursor-pointer transition-all active:scale-95 ${copiedId === quiz._id ? 'bg-green-500/10 border-green-500/50' : 'bg-neon-purple/10 border-neon-purple/50 hover:bg-neon-purple/20'}`}
-                                  title="Click to Copy Access Code"
-                                >
-                                  <div className="flex flex-col">
-                                    <span className={`text-[10px] font-black uppercase tracking-[0.3em] mb-1 transition-colors ${copiedId === quiz._id ? 'text-green-400' : 'text-neon-purple'}`}>
-                                      {copiedId === quiz._id ? 'Copied to Clipboard!' : '6-Digit Access Key'}
-                                    </span>
-                                    <span className="text-2xl font-mono font-black text-white tracking-[0.25em] leading-none">{quiz.joinCode || 'GEN-FAIL'}</span>
-                                  </div>
-                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === quiz._id ? 'bg-green-500 text-white' : 'bg-neon-purple/20 text-neon-purple group-hover:bg-neon-purple group-hover:text-white'}`}>
-                                    {copiedId === quiz._id ? <CheckCircle2 size={20} /> : <Copy size={20} />}
-                                  </div>
-                                </div>
-                                <div className="hidden sm:flex flex-col px-3 py-1 bg-white/5 border border-white/10 rounded-xl">
-                                  <span className="text-[8px] font-bold text-gray-600 uppercase">Internal ID</span>
-                                  <span className="text-[10px] font-mono font-bold text-gray-500">{quiz.quizId || 'N/A'}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <p className="text-gray-400 text-sm line-clamp-2 leading-relaxed">{quiz.description}</p>
-                            <div className="flex items-center gap-6 pt-2">
-                              <div className="flex items-center space-x-2 text-xs font-medium text-gray-500">
-                                <Clock size={14} className="text-neon-blue" />
-                                <span>{quiz.duration} Minutes</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs font-medium text-gray-500">
-                                <Activity size={14} className="text-neon-purple" />
-                                <span>{quiz.questions?.length || 0} Questions</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-xs font-medium text-gray-500">
-                                <Users size={14} className="text-green-400" />
-                                <span>{Math.floor(Math.random() * 50)} Attempts</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-2 w-full md:w-auto">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => router.push('/reports')}
-                              className="flex-1 md:flex-none px-4 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl text-sm font-bold flex items-center justify-center space-x-2 transition-all"
-                            >
-                              <TrendingUp size={16} className="text-neon-purple" />
-                              <span>Insights</span>
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => deleteQuiz(quiz._id)}
-                              className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-xl transition-all"
-                            >
-                              <Trash2 size={20} />
-                            </motion.button>
-                          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  {
+                    title: 'Create Manual',
+                    desc: 'Design a bespoke assessment from scratch with custom parameters.',
+                    icon: <FileText size={24} />,
+                    href: '/create-quiz',
+                    color: 'text-blue-400'
+                  },
+                  {
+                    title: 'AI Generator',
+                    desc: 'Instantly generate high-quality assessments from PDF or prompts.',
+                    icon: <Sparkles size={24} />,
+                    href: '/generate-quiz',
+                    color: 'text-purple-400'
+                  },
+                  {
+                    title: 'My Studio',
+                    desc: 'Manage, edit, and distribute your existing quiz units.',
+                    icon: <FolderOpen size={24} />,
+                    href: '/my-quizzes',
+                    color: 'text-emerald-400'
+                  },
+                  {
+                    title: 'Global Insights',
+                    desc: 'Deep analytics and automated performance tracking reports.',
+                    icon: <TrendingUp size={24} />,
+                    href: '/reports',
+                    color: 'text-amber-400'
+                  }
+                ].map((action, i) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => router.push(action.href)}
+                    className="cursor-pointer"
+                  >
+                    <GlassCard className="p-8 group hover:bg-white/10 transition-all border-l-4 border-l-transparent hover:border-l-neon-blue">
+                      <div className="flex items-start space-x-6">
+                        <div className={`p-4 bg-white/5 rounded-2xl ${action.color} border border-white/5 group-hover:scale-110 transition-transform`}>
+                          {action.icon}
                         </div>
-                      </GlassCard>
-                    </motion.div>
-                  ))
-                )}
+                        <div className="space-y-2">
+                          <h3 className="text-xl font-bold text-white group-hover:text-neon-blue transition-colors">{action.title}</h3>
+                          <p className="text-gray-500 text-sm leading-relaxed">{action.desc}</p>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                ))}
               </div>
             </>
           ) : (
@@ -469,7 +432,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.div >
   );
 }
 

@@ -27,7 +27,7 @@ export default function Sidebar() {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', id: 'dashboard' },
     { icon: FileText, label: 'Create Quiz', href: '/create-quiz', id: 'create' },
     { icon: Sparkles, label: 'AI Generate', href: '/generate-quiz', id: 'ai' },
-    { icon: FolderOpen, label: 'My Quizzes', href: '/quiz/my', id: 'my-quizzes' },
+    { icon: FolderOpen, label: 'My Quizzes', href: '/my-quizzes', id: 'my-quizzes' },
     { icon: Users, label: 'Attempts', href: '/reports', id: 'attempts' },
     { icon: Settings, label: 'Settings', href: '#', id: 'settings' },
   ];

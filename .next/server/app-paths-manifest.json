@@ -1,7 +1,11 @@
 {
-  "/results/[id]/page": "app/results/[id]/page.js",
-  "/results/page": "app/results/page.js",
+  "/page": "app/page.js",
+  "/generate-quiz/page": "app/generate-quiz/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/attempt/my/route": "app/api/attempt/my/route.js"
+  "/api/quiz/my/route": "app/api/quiz/my/route.js",
+  "/my-quizzes/page": "app/my-quizzes/page.js",
+  "/edit-quiz/[id]/page": "app/edit-quiz/[id]/page.js",
+  "/api/quiz/[id]/route": "app/api/quiz/[id]/route.js",
+  "/reports/page": "app/reports/page.js",
+  "/api/report/teacher/route": "app/api/report/teacher/route.js"
 }

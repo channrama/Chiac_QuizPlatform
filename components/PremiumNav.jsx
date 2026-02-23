@@ -33,6 +33,7 @@ export default function PremiumNav() {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: FileText, label: 'Quiz Studio', href: '/create-quiz' },
     { icon: Sparkles, label: 'AI Workbench', href: '/generate-quiz' },
+    { icon: FolderOpen, label: 'My Quizzes', href: '/my-quizzes' },
     { icon: Users, label: 'Insights', href: '/reports' },
   ];
 

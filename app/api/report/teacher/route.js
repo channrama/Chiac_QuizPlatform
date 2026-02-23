@@ -12,21 +12,27 @@ export async function GET(req) {
     const quizzes = await Quiz.find({ createdBy: user._id }).lean();
     const reports = [];
     for (const q of quizzes) {
-      const attempts = await Attempt.find({ quizId: q._id }).populate('studentId', 'name email').lean();
+      const attempts = await Attempt.find({ quizId: q._id }).populate('studentId', 'name displayName email').lean();
+
       const students = attempts.map(a => ({
         studentId: a.studentId?._id,
-        name: a.studentId?.name || a.studentId?.displayName || '',
-        email: a.studentId?.email || '',
-        score: a.score,
-        totalQuestions: a.totalQuestions,
-        attemptedAt: a.attemptedAt
+        name: a.studentId?.name || a.studentId?.displayName || 'Unknown Student',
+        email: a.studentId?.email || 'N/A',
+        score: a.score || 0,
+        totalQuestions: a.totalQuestions || q.questions.length,
+        attemptedAt: a.attemptedAt || a.createdAt
       }));
+
+      const totalHits = students.reduce((acc, s) => acc + s.score, 0);
+      const avgScore = students.length > 0 ? (totalHits / students.length).toFixed(1) : 0;
+
       reports.push({
         id: q._id,
         quizId: q.quizId,
         joinCode: q.joinCode,
         title: q.title,
         totalQuestions: q.questions.length,
+        avgScore,
         students
       });
     }
