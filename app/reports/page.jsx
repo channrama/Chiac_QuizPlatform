@@ -121,7 +121,7 @@ export default function Reports() {
                     </span>
                     <span className="flex items-center space-x-1 text-xs text-gray-500 font-bold uppercase tracking-wider">
                       <Award size={12} className="text-neon-purple" />
-                      <span>Avg {Math.round(r.students.reduce((acc, s) => acc + (s.score / r.totalQuestions) * 100, 0) / (r.students.length || 1))}%</span>
+                      <span>Avg {Math.round(r.students.reduce((acc, s) => acc + s.score, 0) / (r.students.length || 1))} / {r.totalQuestions} Hits</span>
                     </span>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function Reports() {
                         </div>
                         <div className="text-right">
                           <span className={`text-2xl font-black ${scorePercentage >= 80 ? 'text-green-400 shadow-glow-sm' : scorePercentage >= 50 ? 'text-neon-blue' : 'text-red-400'}`}>
-                            {scorePercentage}%
+                            {s.score}<span className="text-sm opacity-50 ml-1">/{r.totalQuestions}</span>
                           </span>
                         </div>
                       </div>

@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [joinError, setJoinError] = useState('');
   const [joining, setJoining] = useState(false);
   const [attempts, setAttempts] = useState([]);
+  const [studentStats, setStudentStats] = useState({ rank: 'N/A', totalScore: 0 });
   const [stats, setStats] = useState({ total: 0, secondary: 0, third: 0 });
   const [dataLoading, setDataLoading] = useState(true);
   const router = useRouter(); // Initialized useRouter
@@ -66,12 +67,14 @@ export default function Dashboard() {
 
       if (attemptRes.ok) setAttempts(attemptData);
 
+      const statsRes = await fetch('/api/stats/student');
+      const statsData = await statsRes.json();
+      if (statsRes.ok) setStudentStats(statsData);
+
       setStats({
-        total: 1, // Placeholder for "Enter Code" focus
+        total: statsData.rank || 'N/A',
         secondary: attemptData.length,
-        third: attemptData.length > 0
-          ? Math.round(attemptData.reduce((acc, curr) => acc + (curr.score || 0), 0) / attemptData.length)
-          : 0
+        third: statsData.totalScore || 0
       });
     } catch (err) {
       console.error(err);
@@ -202,25 +205,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           {
-            label: isTeacher ? 'Total Quizzes' : 'Success Rate',
-            val: isTeacher ? stats.total : `${stats.third}%`,
+            label: isTeacher ? 'Total Quizzes' : 'Leaderboard Rank',
+            val: isTeacher ? stats.total : `#${stats.total}`,
             icon: isTeacher ? <BookOpen size={24} /> : <Trophy size={24} />,
             color: 'blue',
-            trend: '+12% this month'
+            trend: isTeacher ? '+12% this month' : 'Global Ranking'
           },
           {
-            label: isTeacher ? 'Active Students' : 'Assessments Done',
+            label: isTeacher ? 'Active Students' : 'Quizzes Done',
             val: stats.secondary,
             icon: isTeacher ? <Users size={24} /> : <History size={24} />,
             color: 'purple',
-            trend: 'Trending Up'
+            trend: isTeacher ? 'Trending Up' : 'Total Submissions'
           },
           {
-            label: isTeacher ? 'Avg Performance' : 'Current Level',
-            val: isTeacher ? '84%' : 'Level 12',
+            label: isTeacher ? 'Avg Performance' : 'Growth Level',
+            val: isTeacher ? '84%' : `Level ${Math.floor((studentStats.totalScore || 0) / 10) + 1}`,
             icon: <Activity size={24} />,
             color: 'green',
-            trend: 'Stable'
+            trend: isTeacher ? 'Stable' : `${studentStats.totalScore || 0} Total Hits`
           }
         ].map((s, i) => (
           <GlassCard key={i} className="relative overflow-hidden group">
@@ -394,8 +397,15 @@ export default function Dashboard() {
 
         {/* Aside Stats/Activity Area */}
         <div className="space-y-8">
-          <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
-            {isTeacher ? <><History className="text-neon-purple" /><span>Recent Events</span></> : <><Trophy className="text-neon-purple" /><span>Leaderboard Position</span></>}
+          <h2 className="text-2xl font-bold text-white flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              {isTeacher ? <><History className="text-neon-purple" /><span>Recent Events</span></> : <><Trophy className="text-neon-purple" /><span>My Rank</span></>}
+            </div>
+            {!isTeacher && studentStats.rank !== 'N/A' && (
+              <span className="px-3 py-1 bg-neon-blue/20 border border-neon-blue/30 rounded-lg text-neon-blue text-xs font-black">
+                RANK #{studentStats.rank}
+              </span>
+            )}
           </h2>
 
           <div className="space-y-4">

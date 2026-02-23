@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { Trophy, Clock, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -8,6 +9,7 @@ import GlassCard from '../../components/GlassCard';
 export default function Results() {
   const { user, loading } = useAuth();
   const [attempts, setAttempts] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && user) fetchMy();
@@ -82,14 +84,17 @@ export default function Results() {
                   <div className="flex items-center justify-between md:justify-end md:space-x-8">
                     <div className="text-center md:text-right">
                       <div className="text-2xl font-bold text-white">
-                        {a.score}<span className="text-sm text-gray-500 ml-1">%</span>
+                        {a.score}<span className="text-sm text-gray-400 ml-1">/ {a.totalQuestions}</span>
                       </div>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Final Score</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Raw Score</p>
                     </div>
 
                     <div className={`h-12 w-1 bg-white/10 hidden md:block`} />
 
-                    <div className="flex items-center space-x-2 text-neon-blue font-bold group-hover:translate-x-1 transition-transform cursor-pointer">
+                    <div
+                      onClick={() => router.push(`/results/${a._id}`)}
+                      className="flex items-center space-x-2 text-neon-blue font-bold group-hover:translate-x-1 transition-transform cursor-pointer"
+                    >
                       <span>Review</span>
                       <ChevronRight size={18} />
                     </div>

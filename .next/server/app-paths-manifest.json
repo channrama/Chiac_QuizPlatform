@@ -1,12 +1,7 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
-  "/api/auth/logout/route": "app/api/auth/logout/route.js",
-  "/login/page": "app/login/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/attempt/my/route": "app/api/attempt/my/route.js",
-  "/api/quiz/join/[code]/route": "app/api/quiz/join/[code]/route.js",
-  "/quiz/[id]/page": "app/quiz/[id]/page.js",
-  "/api/attempt/route": "app/api/attempt/route.js",
+  "/results/[id]/page": "app/results/[id]/page.js",
   "/results/page": "app/results/page.js",
-  "/api/quiz/[id]/route": "app/api/quiz/[id]/route.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/attempt/my/route": "app/api/attempt/my/route.js"
 }

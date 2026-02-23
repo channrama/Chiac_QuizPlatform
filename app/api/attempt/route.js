@@ -21,10 +21,10 @@ export async function POST(req) {
       const provided = Number(answers[i]);
       if (!Number.isNaN(provided) && provided === correct) score++;
     }
-    const attempt = await Attempt.create({ studentId: user._id, quizId, score, totalQuestions: total });
+    const attempt = await Attempt.create({ studentId: user._id, quizId, score, totalQuestions: total, answers });
     // return populated attempt for convenience
     const saved = await Attempt.findById(attempt._id).populate('quizId', 'title').lean();
-    return new Response(JSON.stringify({ attempt: saved, score, total }), { status: 201 });
+    return new Response(JSON.stringify({ attempt: saved, score, total, attemptId: attempt._id }), { status: 201 });
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
