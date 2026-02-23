@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import connectDB from '../../../../lib/db';
 import Attempt from '../../../../models/Attempt';
 import { getUserFromRequest, requireRole } from '../../../../lib/middleware';
@@ -7,11 +8,20 @@ export async function GET(req) {
     if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     if (!requireRole(user, 'student')) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
 
+    const { searchParams } = new URL(req.url);
+    const quizId = searchParams.get('quizId');
+
     try {
         await connectDB();
 
+        // 0. Filter by quizId if provided
+        const matchStage = quizId && mongoose.Types.ObjectId.isValid(quizId)
+            ? { $match: { quizId: new mongoose.Types.ObjectId(quizId) } }
+            : { $match: {} };
+
         // 1. Get all stats and join with User model for names
         const allStats = await Attempt.aggregate([
+            matchStage,
             {
                 $group: {
                     _id: "$studentId",

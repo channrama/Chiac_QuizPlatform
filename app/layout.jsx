@@ -1,7 +1,9 @@
 import './globals.css'
 import PremiumNav from '../components/PremiumNav'
 import Sidebar from '../components/Sidebar'
+import NavigationProgress from '../components/NavigationProgress'
 import { AuthProvider } from '../context/AuthContext'
+
 
 export const metadata = {
   title: 'QuizAI - Advanced Quiz & Assessment Platform'
@@ -31,6 +33,7 @@ export default function RootLayout({ children }) {
         `}</style>
       </head>
       <body className="bg-dark-900 text-white">
+        <NavigationProgress />
         <AuthProvider>
           <PremiumNav />
           <div className="flex">

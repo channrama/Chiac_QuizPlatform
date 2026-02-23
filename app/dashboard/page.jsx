@@ -31,10 +31,14 @@ export default function Dashboard() {
   const [joinError, setJoinError] = useState('');
   const [joining, setJoining] = useState(false);
   const [attempts, setAttempts] = useState([]);
+  const [quizList, setQuizList] = useState([]); // unique quizzes from attempts for dropdown
   const [studentStats, setStudentStats] = useState({ rank: 'N/A', totalScore: 0 });
   const [stats, setStats] = useState({ total: 0, secondary: 0, third: 0 });
   const [dataLoading, setDataLoading] = useState(true);
-  const router = useRouter(); // Initialized useRouter
+  const [selectedQuiz, setSelectedQuiz] = useState('all');
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const router = useRouter();
+
 
   useEffect(() => {
     if (!loading && user) {
@@ -62,29 +66,76 @@ export default function Dashboard() {
     }
   };
 
-  const fetchStudentData = async () => {
+  const fetchLeaderboard = async (quizId = 'all') => {
     try {
-      setDataLoading(true);
-      const attemptRes = await fetch('/api/attempt/my');
-      const attemptData = await attemptRes.json();
+      setLeaderboardLoading(true);
+      const url = quizId !== 'all' ? `/api/stats/student?quizId=${quizId}` : '/api/stats/student';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (res.ok) setStudentStats(data);
+    } catch (err) {
+      console.error('Leaderboard fetch error:', err);
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  };
 
-      if (attemptRes.ok) setAttempts(attemptData);
+  const fetchStudentData = async () => {
+    setDataLoading(true);
 
-      const statsRes = await fetch('/api/stats/student');
-      const statsData = await statsRes.json();
-      if (statsRes.ok) setStudentStats(statsData);
+    // Helper: fetch with retries (handles cold-start 500s)
+    const fetchWithRetry = async (url, retries = 3, delay = 800) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) return res.json();
+          if (i < retries - 1) await new Promise(r => setTimeout(r, delay));
+        } catch (e) {
+          if (i < retries - 1) await new Promise(r => setTimeout(r, delay));
+        }
+      }
+      return null;
+    };
 
-      setStats({
-        total: statsData.rank || 'N/A',
-        secondary: attemptData.length,
-        third: statsData.totalScore || 0
-      });
+    try {
+      // 1. Fetch attempts with retry
+      const attemptData = await fetchWithRetry('/api/attempt/my');
+      if (attemptData && Array.isArray(attemptData)) {
+        setAttempts(attemptData);
+
+        // Build unique quiz list for dropdown using string IDs
+        const seen = {};
+        const list = [];
+        attemptData.forEach(a => {
+          if (a.quizId && a.quizId._id) {
+            const idStr = String(a.quizId._id);
+            if (!seen[idStr]) {
+              seen[idStr] = true;
+              list.push({ _id: idStr, title: a.quizId.title || 'Untitled Quiz' });
+            }
+          }
+        });
+        setQuizList(list);
+
+        // 2. Fetch global stats
+        const statsData = await fetchWithRetry('/api/stats/student');
+        if (statsData) {
+          setStudentStats(statsData);
+          setStats({
+            total: statsData.rank || 'N/A',
+            secondary: attemptData.length,
+            third: statsData.totalScore || 0
+          });
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setDataLoading(false);
     }
   };
+
+
 
   const handleJoin = async (e) => {
     e && e.preventDefault();
@@ -365,12 +416,33 @@ export default function Dashboard() {
               {isTeacher ? (
                 <><History className="text-neon-purple" /><span>Recent Events</span></>
               ) : (
-                <><Trophy className="text-neon-blue" /><span>Global Leaderboard</span></>
+                <><Trophy className="text-neon-blue" /><span>{selectedQuiz === 'all' ? 'Global Leaderboard' : 'Quiz Ranking'}</span></>
               )}
             </h2>
             {!isTeacher && (
-              <div className="mt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                Top Performers & Your Position
+              <div className="mt-4 space-y-3">
+                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest pl-1 flex justify-between items-center">
+                  <span>Filter by Assessment</span>
+                  {selectedQuiz !== 'all' && (
+                    <span className="text-neon-blue lowercase font-normal">Active Filter</span>
+                  )}
+                </div>
+                <select
+                  value={selectedQuiz}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedQuiz(val);
+                    fetchLeaderboard(val);
+                  }}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-neon-blue/50 transition-all appearance-none cursor-pointer hover:bg-white/10"
+                >
+                  <option value="all" className="bg-dark-900">Global Leaderboard (All Quizzes)</option>
+                  {quizList.map(quiz => (
+                    <option key={quiz._id} value={quiz._id} className="bg-dark-900">
+                      {quiz.title}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
@@ -399,9 +471,14 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {/* Leaderboard Section */}
-                {studentStats.leaderboard && studentStats.leaderboard.length > 0 ? (
+                {leaderboardLoading ? (
+                  <div className="py-12 flex justify-center">
+                    <div className="animate-spin h-8 w-8 border-b-2 border-neon-blue rounded-full" />
+                  </div>
+                ) : studentStats.leaderboard && studentStats.leaderboard.length > 0 ? (
                   <div className="space-y-3">
                     {studentStats.leaderboard.map((student, idx) => (
+
                       <motion.div
                         key={idx}
                         initial={{ opacity: 0, x: 20 }}
@@ -411,9 +488,9 @@ export default function Dashboard() {
                         <div className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${student.isMe ? 'bg-neon-blue/10 border-neon-blue/50 ring-1 ring-neon-blue/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
                           <div className="flex items-center space-x-3">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${student.rank === 1 ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(234,179,8,0.5)]' :
-                                student.rank === 2 ? 'bg-gray-300 text-black' :
-                                  student.rank === 3 ? 'bg-amber-600 text-black' :
-                                    'bg-white/10 text-white'
+                              student.rank === 2 ? 'bg-gray-300 text-black' :
+                                student.rank === 3 ? 'bg-amber-600 text-black' :
+                                  'bg-white/10 text-white'
                               }`}>
                               {student.rank}
                             </div>

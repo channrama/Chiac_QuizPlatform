@@ -1,10 +1,6 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
-  "/generate-quiz/page": "app/generate-quiz/page.js",
-  "/reports/page": "app/reports/page.js",
-  "/page": "app/page.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/login/page": "app/login/page.js",
   "/api/attempt/my/route": "app/api/attempt/my/route.js",
-  "/api/stats/student/route": "app/api/stats/student/route.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/stats/student/route": "app/api/stats/student/route.js",
+  "/results/page": "app/results/page.js"
 }
